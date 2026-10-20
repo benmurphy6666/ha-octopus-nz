@@ -36,4 +36,5 @@ jobs:
       - uses: actions/checkout@v4
       - uses: astral-sh/ruff-action@v3
         with:
+          version: "0.17.1"
           args: check --output-format=github

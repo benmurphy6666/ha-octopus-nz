@@ -32,7 +32,7 @@ that could plausibly beat that has been tried and cannot:
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from aiohttp import ClientError, ClientSession
@@ -150,21 +150,21 @@ class OctopusNZApi:
         self._token = got["token"]
         # Access tokens last an hour; renew early so a slow call cannot straddle
         # the boundary.
-        self._token_expires = datetime.now(timezone.utc) + timedelta(minutes=55)
+        self._token_expires = datetime.now(UTC) + timedelta(minutes=55)
         if got.get("refreshToken"):
             self._refresh_token = got["refreshToken"]
         if raw := got.get("refreshExpiresIn"):
             # Kraken returns an absolute unix timestamp despite the "In" name.
             self._refresh_expires = (
-                datetime.fromtimestamp(raw, timezone.utc)
+                datetime.fromtimestamp(raw, UTC)
                 if raw > 1_000_000_000
-                else datetime.now(timezone.utc) + timedelta(seconds=raw)
+                else datetime.now(UTC) + timedelta(seconds=raw)
             )
         return self._token
 
     async def async_token(self) -> str:
         """A live access token, renewing or re-authenticating as needed."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         if self._token and self._token_expires and now < self._token_expires:
             return self._token
 
